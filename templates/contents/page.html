@@ -1,0 +1,8 @@
+{{- define "content" -}}
+<h1>{{.Title}}</h1>
+{{.HTMLContent}}
+{{- end -}}
+
+{{- define "nav" -}}
+<a href="/{{.PageName}}?edit=1">Edit page</a>
+{{- end -}}

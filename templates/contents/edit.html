@@ -1,0 +1,13 @@
+{{- define "content" -}}
+<h1>{{.Title}}</h1>
+<form id="edit-page" method="post" accept-charset="utf-8" action="/{{.PageName}}">
+<textarea name="content" rows="60" cols="80">
+{{.SourceContent}}
+</textarea>
+<button type="submit">Save</button>
+</form>
+{{- end -}}
+
+{{- define "nav" -}}
+🐵
+{{- end -}}

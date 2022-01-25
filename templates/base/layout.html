@@ -1,0 +1,44 @@
+{{- define "layout" -}}
+
+<html>
+  <head>
+    <title>{{.Title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      .error {
+          background-color: #fdd;
+          border: 0.1em solid #f88;
+          padding: 0.3em;
+      }
+      body {
+          max-width: 50em;
+      }
+      textarea {
+          width: 100%;
+      }
+      button {
+          display: block;
+          margin: 0.7em 0 0 auto;
+          padding: 0.2em 1em;
+      }
+    </style>
+  </head>
+  <body>
+    {{- if .Error -}}
+    <div class="error">{{.Error}}</div>
+    {{- end -}}
+    <main>
+      {{- block "content" . -}}
+      Template rendering error.
+      {{- end -}}
+    </main>
+    <hr>
+    <nav>
+      {{- block "nav" . -}}
+      Template rendering error.
+      {{- end -}}
+    </nav>
+  </body>
+</html>
+
+{{- end -}}
