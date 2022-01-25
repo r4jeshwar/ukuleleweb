@@ -89,36 +89,30 @@ func getPageName(path string) string {
 	return path
 }
 
+var pageNameRE = regexp.MustCompile(`\b([A-ZÄÖÜ][a-zäöüß]+){2,}\b`)
+
 // isPageName returns true iff pn is a camel case page name.
 func isPageName(pn string) bool {
-	wantUpper := true
-	for _, r := range pn {
-		if wantUpper {
-			if !(r >= 'A' && r <= 'Z') {
-				return false
-			}
-			wantUpper = false
-		}
-
-		if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z')) {
-			return false
-		}
-	}
-	return true
+	return pageNameRE.MatchString(pn)
 }
 
 func contentValue(r *http.Request) string {
 	return strings.ReplaceAll(r.FormValue("content"), "\r\n", "\n")
 }
 
-var wikiLinkRE = regexp.MustCompile(`\b([A-Z][a-z]+){2,}\b`)
+var goLinkRE = regexp.MustCompile(`\bgo/[A-Za-z0-9_+öäüÖÄÜß-]+\b`)
 
 func renderHTML(md string) string {
-	// XXX: It is a hack to replace wiki links after markdown rendering...
 	// XXX: Does blackfriday handle wiki links better?
 	// return string(blackfriday.MarkdownCommon([]byte(md)))
-	md = wikiLinkRE.ReplaceAllStringFunc(md, func(m string) string {
+
+	// XXX: It is a hack to replace wiki links before markdown rendering...
+	md = pageNameRE.ReplaceAllStringFunc(md, func(m string) string {
 		return fmt.Sprintf(`<a href="/%s">%s</a>`, m, m)
+	})
+	// Go links.
+	md = goLinkRE.ReplaceAllStringFunc(md, func(m string) string {
+		return fmt.Sprintf(`<a href="http://%s">%s</a>`, m, m)
 	})
 
 	doc := markdown.Parse([]byte(md), nil)
