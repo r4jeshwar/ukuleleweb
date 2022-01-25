@@ -13,6 +13,9 @@ import (
 	"github.com/peterbourgon/diskv/v3"
 )
 
+//go:embed static/*
+var StaticFiles embed.FS
+
 //go:embed templates/*
 var templateFiles embed.FS
 
