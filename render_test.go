@@ -21,8 +21,20 @@ func TestRender(t *testing.T) {
 			Want:  `<p>Hello <a href="/WikiLink">WikiLink</a>!</p>` + "\n",
 		},
 		{
+			Input: "WikiLink at start",
+			Want:  `<p><a href="/WikiLink">WikiLink</a> at start</p>` + "\n",
+		},
+		{
+			Input: "at the end a WikiLink",
+			Want:  `<p>at the end a <a href="/WikiLink">WikiLink</a></p>` + "\n",
+		},
+		{
 			Input: `<a href="http://wiki/">To the wiki!</a>`,
 			Want:  `<p><a href="http://wiki/">To the wiki!</a></p>` + "\n",
+		},
+		{
+			Input: "Hello go/go-link!",
+			Want:  `<p>Hello <a href="http://go/go-link">go/go-link</a>!</p>` + "\n",
 		},
 		// {
 		// 	// Should not recognize the inner mention of 'ExamplePage'.

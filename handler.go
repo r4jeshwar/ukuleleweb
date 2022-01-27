@@ -4,7 +4,6 @@ import (
 	"embed"
 	"html/template"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/peterbourgon/diskv/v3"
@@ -88,8 +87,6 @@ func getPageName(path string) string {
 	}
 	return path
 }
-
-var pageNameRE = regexp.MustCompile(`\b([A-ZÄÖÜ][a-zäöüß]+){2,}\b`)
 
 // isPageName returns true iff pn is a camel case page name.
 func isPageName(pn string) bool {
