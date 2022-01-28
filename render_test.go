@@ -36,11 +36,11 @@ func TestRender(t *testing.T) {
 			Input: "Hello go/go-link!",
 			Want:  `<p>Hello <a href="http://go/go-link">go/go-link</a>!</p>` + "\n",
 		},
-		// {
-		// 	// Should not recognize the inner mention of 'ExamplePage'.
-		// 	Input: `<a href="http://wiki/ExamplePage">To the wiki!</a>`,
-		// 	Want:  `<p><a href="http://wiki/ExamplePage">To the wiki!</a></p>` + "\n",
-		// },
+		{
+			// Should not recognize the inner mention of 'ExamplePage'.
+			Input: `<a href="http://wiki/ExamplePage">To the wiki!</a>`,
+			Want:  `<p><a href="http://wiki/ExamplePage">To the wiki!</a></p>` + "\n",
+		},
 	} {
 		got := renderHTML(tt.Input)
 		if diff := cmp.Diff(got, tt.Want); diff != "" {
