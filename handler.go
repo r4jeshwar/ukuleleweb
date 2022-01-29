@@ -56,18 +56,23 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			content = h.D.ReadString(pageName)
 		}
 		pv.SourceContent = content
+	} else if r.Method == "POST" {
+		content := contentValue(r)
+		err := h.D.WriteString(pageName, content)
+		if err == nil { // Success saving! This is the default case.
+			http.Redirect(w, r, "/"+pageName, http.StatusFound)
+			return
+		}
+		// On error, render edit form with the error message.
+		w.WriteHeader(http.StatusInternalServerError)
+		tmpl = editTmpl
+		pv.Error = err.Error() // XXX hide the original message?
+		pv.SourceContent = content
 	} else {
 		tmpl = pageTmpl
-		if r.Method == "POST" {
-			content := contentValue(r)
-			err := h.D.WriteString(pageName, content)
-			if err != nil {
-				pv.Error = err.Error() // XXX hide?
-			}
-		}
-
 		content := h.D.ReadString(pageName)
 		pv.HTMLContent = template.HTML(renderHTML(content))
+
 	}
 	err := tmpl.Execute(w, pv)
 	if err != nil {
