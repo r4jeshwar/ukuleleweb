@@ -3,6 +3,7 @@ package ukuleleweb
 import (
 	"embed"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 
@@ -66,7 +67,8 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// On error, render edit form with the error message.
 		w.WriteHeader(http.StatusInternalServerError)
 		tmpl = editTmpl
-		pv.Error = err.Error() // XXX hide the original message?
+		log.Printf("diskv.WriteString(%q, ...): %v\n", pageName, err)
+		pv.Error = "Internal error writing page"
 		pv.SourceContent = content
 	} else {
 		tmpl = pageTmpl
