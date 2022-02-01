@@ -34,6 +34,9 @@ type PageHandler struct {
 }
 
 func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+	w.Header().Set("Referrer-Policy", "no-referrer")
+
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, "/"+h.MainPage, http.StatusMovedPermanently)
 		return
