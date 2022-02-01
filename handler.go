@@ -49,7 +49,7 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	tmpl := pageTmpl
 	pv := &pageValues{
-		Title:    pageName, // XXX insert spaces before capitals
+		Title:    pageName, // XXX insert spaces before capitals?
 		PageName: pageName,
 	}
 
@@ -70,7 +70,7 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// On error, render edit form with the error message.
 		w.WriteHeader(http.StatusInternalServerError)
 		tmpl = editTmpl
-		log.Printf("diskv.WriteString(%q, ...): %v\n", pageName, err)
+		log.Printf("ERROR: diskv.WriteString(%q, ...): %v\n", pageName, err)
 		pv.Error = "Internal error writing page"
 		pv.SourceContent = content
 	} else {
