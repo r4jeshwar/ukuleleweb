@@ -4,16 +4,11 @@
 {{- end -}}
 
 {{- define "nav" -}}
+{{if .ReverseLinks -}}
+Linked from: {{range .ReverseLinks}}<a href="/{{.}}">{{.}}</a> {{end}}
+<br>
+{{end -}}
+
 <a href="/{{.PageName}}?edit=1">Edit page</a> |
 <a href="/">Start page</a>
-
-<a style="float:right;" onclick="toggleVisibility('revlinks');" href="javascript:void(0);">Links</a>
-<br>
-
-<div style="float:right; display:none; padding: 1em;" id="revlinks">
-{{ range .ReverseLinks -}}
-<a href="/{{.}}">{{.}}</a><br>
-{{ end -}}
-</div>
-
 {{- end -}}
