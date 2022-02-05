@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/peterbourgon/diskv/v3"
 )
@@ -26,11 +27,16 @@ type pageValues struct {
 	HTMLContent   template.HTML
 	SourceContent string
 	Error         string
+	ReverseLinks  []string
 }
 
 type PageHandler struct {
 	MainPage string
 	D        *diskv.Diskv
+
+	// A cached version of the reverse links.
+	revLinksMu sync.RWMutex
+	revLinks   map[string][]string
 }
 
 func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +70,8 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		content := contentValue(r)
 		err := h.D.WriteString(pageName, content)
 		if err == nil { // Success saving! This is the default case.
+			// TODO: Potentially do it in a background job?
+			h.recalculateRevLinks()
 			http.Redirect(w, r, "/"+pageName, http.StatusFound)
 			return
 		}
@@ -77,6 +85,7 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		tmpl = pageTmpl
 		content := h.D.ReadString(pageName)
 		pv.HTMLContent = template.HTML(renderHTML(content))
+		pv.ReverseLinks = h.reverseLinks(pageName)
 
 	}
 	err := tmpl.Execute(w, pv)
@@ -84,6 +93,28 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *PageHandler) reverseLinks(pagename string) []string {
+	h.revLinksMu.RLock()
+	defer h.revLinksMu.RUnlock()
+
+	if h.revLinks == nil {
+		// Recalculate at read only if not done before.
+		// This should only happen on startup.
+		h.revLinksMu.RUnlock()
+		h.recalculateRevLinks()
+		h.revLinksMu.RLock()
+	}
+	return h.revLinks[pagename]
+}
+
+func (h *PageHandler) recalculateRevLinks() {
+	rl := AllReverseLinks(h.D)
+
+	h.revLinksMu.Lock()
+	defer h.revLinksMu.Unlock()
+	h.revLinks = rl
 }
 
 func getPageName(path string) string {
