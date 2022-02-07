@@ -5,7 +5,7 @@ Ukuleleweb is a simple Wiki implementation in the style of the original C2 wiki.
 ## Few dependencies
 
 The only dependencies are a markdown renderer and [Peter Bourgon's
-`diskv` library](https://github.com/peterbourgon/diskv).
+`diskv` library](https://github.com/peterbourgon/diskv) for storage.
 
 ## Simple Storage
 
@@ -13,6 +13,12 @@ Wiki pages are simply stored in a directory, where file names are page
 names and each file contains the page's markdown source. This way, you
 can never lose your data, and it's also easy to put it under version
 control.
+
+## Non-features
+
+Ukuleleweb does not have user management, nor an authentication
+mechanism. To keep your wiki confidential, place it behind a reverse
+proxy.
 
 ## Run it
 
