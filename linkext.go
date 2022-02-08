@@ -16,6 +16,7 @@ var (
 	goLinkRE   = regexp.MustCompile(`\bgo/[A-Za-z0-9_+öäüÖÄÜß-]+\b`)
 )
 
+// wikiLinkExt is a goldmark extension for recognizing WikiLinks and go/links.
 type wikiLinkExt struct{}
 
 var WikiLinkExt = &wikiLinkExt{}

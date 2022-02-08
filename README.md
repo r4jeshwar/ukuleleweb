@@ -1,6 +1,7 @@
 # Ukuleleweb
 
-Ukuleleweb is a simple Wiki implementation in the style of the original C2 wiki.
+Ukuleleweb is a simple Wiki implementation in the style of the
+original WikiWikiWeb / C2 wiki.
 
 ## Few dependencies
 
@@ -14,6 +15,14 @@ names and each file contains the page's markdown source. This way, you
 can never lose your data, and it's also easy to put it under version
 control.
 
+## Features
+
+* Recognizes WikiLinks in the classic WikiWikiWeb style (just CamelCasedWords).
+* Displays reverse links at the bottom of each page. (Reverse links
+  are recalculated when saving a page.)
+* Each wiki page is a file on disk, it's easy to add small analysis
+  scripts externally, or to generate new Wiki pages.
+
 ## Non-features
 
 Ukuleleweb does not have user management, nor an authentication
@@ -23,8 +32,15 @@ proxy.
 ## Run it
 
 To run Ukuleleweb, create an empty directory where it can store data,
-and run it using:
+and point it to that directory using the `-store_dir` flag:
 
 ```
-go run cmd/ukuleleweb/main.go --store_dir=/some/empty/directory
+go run cmd/ukuleleweb/main.go -store_dir=/some/empty/directory
+```
+
+or, to install it:
+
+```
+$ go install github.com/gnoack/ukuleleweb/cmd/ukuleleweb@latest
+$ go/bin/ukuleleweb -store_dir=/some/emtpy/directory
 ```
