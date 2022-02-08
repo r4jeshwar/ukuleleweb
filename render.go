@@ -1,49 +1,52 @@
 package ukuleleweb
 
 import (
-	"regexp"
+	"bytes"
 	"sort"
+	"strings"
 
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
 	"github.com/peterbourgon/diskv/v3"
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/ast"
+	"github.com/yuin/goldmark/extension"
+	"github.com/yuin/goldmark/renderer/html"
+	"github.com/yuin/goldmark/text"
 )
 
-func renderHTML(md string) string {
-	// XXX: Does blackfriday handle wiki links better?
-	// return string(blackfriday.MarkdownCommon([]byte(md)))
-
-	// XXX: It is a hack to replace wiki links before markdown rendering...
-	md = replaceDetectedLinks(md)
-
-	doc := markdown.Parse([]byte(md), nil)
-	renderer := html.NewRenderer(html.RendererOptions{
-		Flags: html.CommonFlags, // XXX rethink
-	})
-	return string(markdown.Render(doc, renderer))
-}
-
-var (
-	pageNameRE = regexp.MustCompile(`\b([A-ZÄÖÜ][a-zäöüß]+){2,}\b`)
-	goLinkRE   = regexp.MustCompile(`\bgo/[A-Za-z0-9_+öäüÖÄÜß-]+\b`)
-
-	pageNameWithPrefixRE = regexp.MustCompile(`(\s)(` + pageNameRE.String() + `)`)
+var gmark = goldmark.New(
+	goldmark.WithExtensions(extension.GFM, extension.Typographer, WikiLinkExt),
+	goldmark.WithRendererOptions(html.WithUnsafe()),
 )
 
-func replaceDetectedLinks(t string) string {
-	t = pageNameWithPrefixRE.ReplaceAllString(" "+t, `$1<a href="/$2">$2</a>`)[1:]
-	t = goLinkRE.ReplaceAllString(t, `<a href="http://$0">$0</a>`)
-	return t
+func RenderHTML(md string) (string, error) {
+	var buf bytes.Buffer
+	if err := gmark.Convert([]byte(md), &buf); err != nil {
+		return "", err
+	}
+	return string(buf.Bytes()), nil
 }
 
 // OutgoingLinks returns the outgoing wiki links in a given Markdown input.
 // The outgoing links are a map of page names to true.
 func OutgoingLinks(md string) map[string]bool {
-	res := make(map[string]bool)
-	for _, m := range pageNameWithPrefixRE.FindAllStringSubmatch(" "+md, -1) {
-		res[m[2]] = true
-	}
-	return res
+	found := make(map[string]bool)
+	reader := text.NewReader([]byte(md))
+	doc := gmark.Parser().Parse(reader)
+	ast.Walk(doc, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+		l, ok := n.(*ast.Link)
+		if !ok {
+			return ast.WalkContinue, nil
+		}
+		URL := string(l.Destination)
+		if strings.HasPrefix(URL, "/") {
+			found[URL[1:]] = true
+		}
+		return ast.WalkContinue, nil
+	})
+	return found
 }
 
 // ReverseLinks calculates the reverse link map for the whole wiki.

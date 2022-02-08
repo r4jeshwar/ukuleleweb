@@ -1,9 +1,8 @@
 package ukuleleweb
 
 import (
+	"strings"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestRender(t *testing.T) {
@@ -25,8 +24,16 @@ func TestRender(t *testing.T) {
 			Want:  `<p><a href="/WikiLink">WikiLink</a> at start</p>` + "\n",
 		},
 		{
+			Input: "WikiLink and UkuleleLink",
+			Want:  `<p><a href="/WikiLink">WikiLink</a> and <a href="/UkuleleLink">UkuleleLink</a></p>` + "\n",
+		},
+		{
 			Input: "at the end a WikiLink",
 			Want:  `<p>at the end a <a href="/WikiLink">WikiLink</a></p>` + "\n",
+		},
+		{
+			Input: "at the end a   WikiLink",
+			Want:  `<p>at the end a   <a href="/WikiLink">WikiLink</a></p>` + "\n",
 		},
 		{
 			Input: `<a href="http://wiki/">To the wiki!</a>`,
@@ -41,10 +48,44 @@ func TestRender(t *testing.T) {
 			Input: `<a href="http://wiki/ExamplePage">To the wiki!</a>`,
 			Want:  `<p><a href="http://wiki/ExamplePage">To the wiki!</a></p>` + "\n",
 		},
+		{
+			Input: "[not a WikiLink](http://stuff/)",
+			Want:  `<p><a href="http://stuff/">not a WikiLink</a></p>` + "\n",
+		},
+		{
+			Input: "<!-- not a WikiLink -->",
+			Want:  "<!-- not a WikiLink -->",
+		},
 	} {
-		got := renderHTML(tt.Input)
-		if diff := cmp.Diff(got, tt.Want); diff != "" {
-			t.Errorf("renderHTML(%q) = %q, want %q", tt.Input, got, tt.Want)
+		got, err := RenderHTML(tt.Input)
+		if err != nil {
+			t.Errorf("RenderHTML(%q): %v, want success", tt.Input, err)
+		}
+		if got != tt.Want {
+			t.Errorf("RenderHTML(%q) = %q, want %q", tt.Input, got, tt.Want)
+		}
+	}
+}
+
+func TestOutgoingLinks(t *testing.T) {
+	for _, tt := range []struct {
+		Input string
+		Want  []string
+	}{
+		{
+			Input: "A WikiLink and AnotherOne.",
+			Want:  []string{"AnotherOne", "WikiLink"},
+		},
+		{
+			Input: "<!-- not a WikiLink -->",
+			Want:  []string{},
+		},
+	} {
+		gotMap := OutgoingLinks(tt.Input)
+		got := sortedStringSlice(gotMap)
+
+		if strings.Join(got, ",") != strings.Join(tt.Want, ",") {
+			t.Errorf("OutgoingLinks(%q) = %v, want %v", tt.Input, got, tt.Want)
 		}
 	}
 }

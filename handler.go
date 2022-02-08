@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -84,7 +85,12 @@ func (h *PageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		tmpl = pageTmpl
 		content := h.D.ReadString(pageName)
-		pv.HTMLContent = template.HTML(renderHTML(content))
+		rendered, err := RenderHTML(content)
+		if err != nil {
+			http.Error(w, "Failed to render markdown", http.StatusInternalServerError)
+			return
+		}
+		pv.HTMLContent = template.HTML(rendered)
 		pv.ReverseLinks = h.reverseLinks(pageName)
 
 	}
@@ -129,9 +135,11 @@ func getPageName(path string) string {
 	return path
 }
 
+var fullPageNameRE = regexp.MustCompile(`^` + pageNameRE.String() + `$`)
+
 // isPageName returns true iff pn is a camel case page name.
 func isPageName(pn string) bool {
-	return pageNameRE.MatchString(pn)
+	return fullPageNameRE.MatchString(pn)
 }
 
 func contentValue(r *http.Request) string {
