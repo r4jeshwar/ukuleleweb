@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/gnoack/ukuleleweb"
@@ -11,6 +12,7 @@ import (
 )
 
 var (
+	listenNet  = flag.String("net", "tcp", "HTTP listen network (i.e. 'tcp', 'unix')")
 	listenAddr = flag.String("addr", "localhost:8080", "HTTP listen address")
 	storeDir   = flag.String("store_dir", "", "Store directory")
 	mainPage   = flag.String("main_page", "MainPage", "The default page to use as the main page")
@@ -35,8 +37,14 @@ func main() {
 		D:        d,
 	})
 
-	fmt.Printf("Listening on http://%s/\n", *listenAddr)
-	err := http.ListenAndServe(*listenAddr, nil)
+	s := http.Server{}
+	l, err := net.Listen(*listenNet, *listenAddr)
+	if err != nil {
+		log.Fatalf("Could not listen on net %q address %q: %v", *listenNet, *listenAddr, err)
+	}
+
+	fmt.Printf("Listening on %s!%s\n", *listenNet, *listenAddr)
+	err = s.Serve(l)
 	if err != nil {
 		log.Printf("http.ListenAndServe: %v", err)
 	}
