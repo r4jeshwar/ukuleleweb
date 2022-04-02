@@ -27,7 +27,7 @@ func writeDigraph(w io.Writer, d *diskv.Diskv) {
 	fmt.Fprintln(w)
 	for pn := range d.Keys(nil) {
 		md := d.ReadString(pn)
-		for _, ogPn := range ukuleleweb.OutgoingLinks(md) {
+		for ogPn, _ := range ukuleleweb.OutgoingLinks(md) {
 			fmt.Fprintf(w, "\t%v -> %v;\n", pn, ogPn)
 		}
 	}
