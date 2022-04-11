@@ -17,3 +17,14 @@ button {
 p > * {
     max-width: 100%;
 }
+table {
+    margin-left: 2em;
+    border-spacing: 0;
+}
+th {
+    border-bottom: 1px solid #bdbdbd;
+    text-align: left;
+}
+th, td {
+    padding: 0.5em;
+}
