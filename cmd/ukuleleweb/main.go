@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gnoack/ukuleleweb"
+	"github.com/landlock-lsm/go-landlock/landlock"
 	"github.com/peterbourgon/diskv/v3"
 )
 
@@ -41,6 +42,13 @@ func main() {
 	l, err := net.Listen(*listenNet, *listenAddr)
 	if err != nil {
 		log.Fatalf("Could not listen on net %q address %q: %v", *listenNet, *listenAddr, err)
+	}
+
+	err = landlock.V1.BestEffort().RestrictPaths(
+		landlock.RWDirs(*storeDir),
+	)
+	if err != nil {
+		log.Fatalf("Landlock: %v", err)
 	}
 
 	fmt.Printf("Listening on %s!%s\n", *listenNet, *listenAddr)
