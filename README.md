@@ -3,6 +3,8 @@
 Ukuleleweb is a simple Wiki implementation in the style of the
 original WikiWikiWeb / C2 wiki.
 
+![Unit tests](https://github.com/gnoack/ukuleleweb/actions/workflows/go.yml/badge.svg)
+
 ## Few dependencies
 
 The only dependencies are a markdown renderer and [Peter Bourgon's
