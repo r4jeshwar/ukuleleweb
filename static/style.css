@@ -28,3 +28,18 @@ th {
 th, td {
     padding: 0.5em;
 }
+
+code.language-bad, code.language-good {
+    padding: 1em;
+    display: block;
+}
+
+code.language-bad {
+    color: #f33;
+    background-color: #fee;
+}
+
+code.language-good {
+    color: #181;
+    background-color: #efe;
+}
