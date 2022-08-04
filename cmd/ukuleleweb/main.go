@@ -44,7 +44,7 @@ func main() {
 		log.Fatalf("Could not listen on net %q address %q: %v", *listenNet, *listenAddr, err)
 	}
 
-	err = landlock.V1.BestEffort().RestrictPaths(
+	err = landlock.V2.BestEffort().RestrictPaths(
 		landlock.RWDirs(*storeDir),
 	)
 	if err != nil {
