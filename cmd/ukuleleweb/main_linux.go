@@ -9,7 +9,7 @@ import (
 )
 
 func restrictAccess(rwDirs ...string) {
-	err := landlock.V2.BestEffort().RestrictPaths(
+	err := landlock.V3.BestEffort().RestrictPaths(
 		landlock.RWDirs(rwDirs...),
 	)
 	if err != nil {
