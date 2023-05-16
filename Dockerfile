@@ -22,7 +22,7 @@ RUN chmod +x /ukeleleweb/run.sh
 
 RUN cd cmd/ukuleleweb/ && \
     go mod tidy && \
-    go build && \
+    GOOS=linux GOARCH=amd64 go build && \
     mkdir ukuleleweb-data
     
 EXPOSE 8080
