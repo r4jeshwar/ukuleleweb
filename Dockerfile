@@ -10,11 +10,15 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN bash
 
+ENV MNT_DIR /mnt/nfs/filestore
+
 WORKDIR ukeleleweb
 
 COPY . .
 
 RUN sed "s/localhost/0.0.0.0/g" cmd/ukuleleweb/main.go -i
+
+RUN chmod +x /ukeleleweb/run.sh
 
 RUN cd cmd/ukuleleweb/ && \
     go mod tidy && \
@@ -23,24 +27,4 @@ RUN cd cmd/ukuleleweb/ && \
     
 EXPOSE 8080
 
-ENTRYPOINT ["./cmd/ukuleleweb/ukuleleweb", "-store_dir=ukuleleweb-data"]
-
-# # First stage: build the Go application
-# FROM golang:1.20.1-alpine AS builder
-
-# WORKDIR /app
-
-# COPY go.mod go.sum ./
-# RUN go mod download
-
-# COPY . .
-# RUN CGO_ENABLED=0 go build -o app
-
-# # Second stage: create the final container
-# FROM alpine:latest
-
-# WORKDIR /app
-
-# COPY --from=builder /app/app ./
-
-# CMD ["./app"]
+CMD ["/ukeleleweb/run.sh"]
