@@ -2,6 +2,7 @@ FROM ubuntu:latest
 
 RUN apt-get update && \
     apt-get install -y curl && \
+    apt-get install tini && \
     curl -O https://dl.google.com/go/go1.20.1.linux-amd64.tar.gz && \
     tar -xvf go1.20.1.linux-amd64.tar.gz && \
     mv go /usr/local
@@ -26,5 +27,7 @@ RUN cd cmd/ukuleleweb/ && \
     mkdir ukuleleweb-data
     
 EXPOSE 8080
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 CMD ["/ukeleleweb/run.sh"]
